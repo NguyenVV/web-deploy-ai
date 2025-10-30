@@ -1,0 +1,18 @@
+service:
+  name: beauty-clinic-backend
+  env: node
+  region: oregon
+  plan: free
+  repo: https://github.com/yourname/beauty-clinic
+  branch: main
+  buildCommand: 'npm ci && npm run build || true'
+  startCommand: 'node src/index.js'
+  envVars:
+    - key: DATABASE_URL
+      sync: false
+    - key: OPENAI_API_KEY
+      sync: false
+    - key: STRIPE_SECRET
+      sync: false
+    - key: JWT_SECRET
+      sync: false
