@@ -1,0 +1,45 @@
+name: BeautyClinic AI Full Deployment
+version: 1.0
+description: Automated deployment flow for BeautyClinic demo (PlanetScale, Render, Vercel) designed to be executed by an AI agent or CI.
+inputs:
+  render_token: "{{ secrets.RENDER_TOKEN }}"
+  vercel_token: "{{ secrets.VERCEL_TOKEN }}"
+  planetscale_token: "{{ secrets.PLANETSCALE_TOKEN }}"
+  github_repo: "https://github.com/<yourname>/beautyclinic"
+  github_branch: "main"
+  project_namespace: "FKrN-beautyclinic"
+steps:
+  - id: create_db
+    name: Create PlanetScale database branch (if not exists)
+    run: |
+      echo "Create DB 'beautyclinic' in organization ${PROJECT_NAMESPACE} or ensure it exists."
+    env:
+      PROJECT_NAMESPACE: "${{ inputs.project_namespace }}"
+  - id: migrate
+    name: Run migrations (execute SQL on PlanetScale)
+    run: |
+      echo "Running migrations from init-db/migrations/002_full_schema.sql using provided PLANETSCALE connection."
+  - id: seed
+    name: Run seed scripts
+    run: |
+      echo "Seeding database with init-db/seeds/002_seed_full_data.sql"
+  - id: deploy_backend
+    name: Deploy backend to Render via API
+    run: |
+      echo "Deploy backend to Render service FKrN-beautyclinic-backend (root: /backend)"
+  - id: deploy_frontend
+    name: Deploy frontend to Vercel via API
+    run: |
+      echo "Deploy frontend to Vercel project FKrN-beautyclinic (root: /frontend)"
+  - id: configure_env
+    name: Configure env vars on Render & Vercel
+    run: |
+      echo "Set DATABASE_URL, OPENAI_API_KEY, JWT_SECRET, VITE_API_BASE_URL using placeholders."
+  - id: verify
+    name: Run Playwright E2E Test
+    run: |
+      echo "Execute e2e tests: npx playwright test e2e/tests/booking.spec.ts"
+  - id: notify
+    name: Send final notification
+    run: |
+      echo "Deployment finished. Post webhook or status file."
